@@ -1,0 +1,13 @@
+
+*.zip
+*.tar.gz
+*.pth
+*.npz
+
+
+__pycache__/
+.ipynb_checkpoints/
+
+vinbigdata/
+vinbig_output/
+data/
