@@ -118,4 +118,3 @@ python test.py --mode map --checkpoint fasterrcnn_final.pth --experiment-name si
 ## Results
 
 適當的使用online oversampling和online data augmentation能夠提升模型的泛化能力
-
