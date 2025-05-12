@@ -222,5 +222,5 @@ if __name__ == "__main__":
     local_rank = int(os.environ.get("LOCAL_RANK", 0))
 
     # 直接在 main process 開多 subprocess（已由 torchrun 處理）
-    # 如果用 Python 單檔測試 (world_size==1) 也能跑
+    # 如果用 Python 單檔測試 (world_size==1) 也能跑 .
     train_loop(local_rank, world_size, args)
