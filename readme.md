@@ -12,8 +12,8 @@
 - [Project Structure](#project-structure)
 - [Dataset Preparation](#dataset-preparation)
 - [Environment Setup](#environment-setup)
-- [Pre-training (SimCLR)](#pre-training-simclr)
-- [Fine-tuning (Faster R-CNN)](#fine-tuning-faster-r-cnn)
+- [Pre-training - SimCLR](#pre-training---simclr)
+- [Fine-tuning - Faster R-CNN](#fine-tuning---faster-r-cnn)
 - [Evaluation](#evaluation)
 - [Results](#results)
 
@@ -82,7 +82,7 @@ conda activate my_env_name
 ```
 ---
 
-## Pre-training(SimCLR)
+## Pre-training - SimCLR
 ```
 cd source/pretraining
 (ex)指令輸入:
@@ -94,7 +94,7 @@ vinbig_output/simclr_60pct/pretrain/pretrained-backbone.pth
 ```
 ---
 
-## Fine-tuning (Faster R-CNN)
+## Fine-tuning - Faster R-CNN
 ```
 cd source
 (ex)指令輸入:
