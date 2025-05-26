@@ -100,7 +100,7 @@ vinbig_output/simclr_60pct/pretrain/pretrained-backbone.pth
 
 ## Linear Probe Evaluation
 ```
-cd source
+cd self_supervised_pretraining (也就是最初的目錄)
 (ex)指令輸入:
 python linear_probe.py
 使用凍結的 SimCLR backbone 抽取影像特徵，
