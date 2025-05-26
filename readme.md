@@ -13,6 +13,7 @@
 - [Dataset Preparation](#dataset-preparation)
 - [Environment Setup](#environment-setup)
 - [Pre-training - SimCLR](#pre-training---simclr)
+- [Linear Probe Evaluation](#linear-probe-evaluation)
 - [Fine-tuning - Faster R-CNN](#fine-tuning---faster-r-cnn)
 - [Evaluation](#evaluation)
 - [Results](#results)
@@ -34,20 +35,23 @@
 
 ## Project Structure
 ```
-source/
-├── data/ # 轉成 COCO 後的影像與標註
-│ ├── train/ # 80 % → 60 % 無標籤 + 40 % 有標籤
-│ ├── test/ # 20 % 測試影像
-│ ├── train_annotations.json
-│ └── test_annotations.json
-├── detection/ # 推論、視覺化工具 (留空位示意)
-├── pretraining/
-│ └── pretrain.py # SimCLR Lightning Module
-├── convert_to_coco.py # 資料清理 + WBF + COCO 轉換
-├── train.py # Faster R-CNN fine-tune (DDP)
-├── test.py # mAP 評估 & 可視化
-├── readme.md # ← 就是這份
-└── environment.yaml <-環境架設
+SELF_SUPERVISED_PRETRAINING/                 <!-- 專案根目錄 -->
+├─ source/                                   <!-- 主要原始碼 -->
+│  ├─ data/                                  <!-- 轉成 COCO 的影像與標註 -->
+│  │  ├─ train/        # 80 % 訓練影像 
+│  │  ├─ test/         # 20 % 測試影像  
+│  │  ├─ train_annotations.json  
+│  │  └─ test_annotations.json  
+│  ├─ detection/        # 推論 ‧ 視覺化工具（暫空位示意）  
+│  ├─ pretraining/      
+│  │  └─ pretrain.py    # SimCLR Lightning Module  
+│  ├─ convert_to_coco.py # 資料清理 + WBF + COCO 轉換  
+│  ├─ train.py           # Faster R-CNN fine-tune (DDP)  
+│  └─ test.py            # mAP 評估 & 可視化        
+├─ environment.yaml      # conda / mamba 環境描述  
+├─ linear_probe.py       # 線性 Probe 評估 simclr 效能  
+└─ readme.md               
+
 ```
 ---
 
@@ -86,7 +90,7 @@ conda activate my_env_name
 ```
 cd source/pretraining
 (ex)指令輸入:
-python pretrain.py --experiment-name simclr_60pct --batch-size 8 --epochs 100 --lr 0.08 --workers 8 --labeled-dataset-percent 0.6 --replace --devices auto//把train的百分之60資料做自監督學習
+python pretrain.py --experiment-name simclr_60pct --batch-size 8 --epochs 100 --lr 0.05 --workers 8 --labeled-dataset-percent 0.6 --warmup-epochs 10 --devices auto --replace//把train的百分之60資料做自監督學習
 Backbone：ResNet-50 (去除 fc)
 Augmentation：直方圖均衡, Gaussian Noise, Color Jitter, RandRotation, HF/VF, Gaussian Blur
 訓練結束自動輸出:
@@ -94,11 +98,22 @@ vinbig_output/simclr_60pct/pretrain/pretrained-backbone.pth
 ```
 ---
 
-## Fine-tuning - Faster R-CNN
+## Linear Probe Evaluation
 ```
 cd source
 (ex)指令輸入:
-torchrun --nproc_per_node=8 train.py --experiment-name simclr_60pct --labeled-dataset-percent 0.4 --epochs 60 --batch-size 4 --lr 0.01
+python linear_probe.py
+使用凍結的 SimCLR backbone 抽取影像特徵，
+再以 LogisticRegression (One-vs-Rest) 訓練輕量級線性分類器，
+透過 macro-AUROC 作為無監督預訓練品質的 proxy
+```
+---
+
+## Fine-tuning - Faster R-CNN
+```
+cd self_supervised_pretraining (也就是最初的目錄)
+(ex)指令輸入:
+torchrun --nproc_per_node=8 train.py --experiment-name simclr_60pct --labeled-dataset-percent 0.4 --epochs 100 --batch-size 8 --lr 0.01
 載入 SimCLR backbone
 Repeat-Factor oversampling
 Online Augmentation (Albumentations)：ShiftScaleRotate, Flip, Brightness/Contrast, Gamma, Noise, MotionBlur
